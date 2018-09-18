@@ -58,24 +58,38 @@ end
 
 local function get_params(str)
     local params_str = str:match("%((.-)%)")
+    local has_self = str:find(":")
+    local args
 
-    if not params_str then
-        return nil
-    elseif params_str:find(",") then
-        local clean_str = params_str:gsub("%[", ""):gsub("%]", ""):gsub("%,", "")
-        local params = {}
-        for param in clean_str:gmatch("%S+") do
-            table.insert(params, {name = param})
-        end
-
-        return params
-    else
-        return {
+    if has_self then
+        args = {
             {
-                name = params_str
+                name = "self"
             }
         }
     end
+
+    if params_str and params_str:find(",") then
+        local clean_str = params_str:gsub("%[", ""):gsub("%]", ""):gsub("%,", "")
+        args = args or {}
+        for param in clean_str:gmatch("%S+") do
+            table.insert(args, {name = param})
+        end
+    elseif params_str then
+        args = args or {}
+        table.insert(args, {name = params_str})
+    end
+
+    local argsDisplay = params_str
+    if has_self then
+        if params_str and params_str ~= "" then
+            argsDisplay = "self, " .. argsDisplay
+        else
+            argsDisplay = "self"
+        end
+    end
+
+    return args, argsDisplay, params_str
 end
 
 --------------------
@@ -282,17 +296,26 @@ local output = {
 local function parse(str, returnTypes)
     for i = 1, #str do
         local line = str[i]
-        if line:find("func%-def") then
+
+        if line:match("(%-)def") then
             local namespace = get_namespace(line)
 
-            local params = get_params(line)
             local description = get_description(str, i)
 
             local name = get_name(line)
             local typeof = get_type(line)
 
+            local args, argsDisplay, argsDisplayOmitSelf
+
+            if typeof == "function" then
+                args, argsDisplay, argsDisplayOmitSelf = get_params(line)
+            end
+
+            local target
             if namespace then
-                if not global.fields[namespace] then
+                if global.fields[namespace] then
+                    target = global.fields[namespace].fields
+                else
                     namedTypes[namespace] =
                         namedTypes[namespace] or
                         {
@@ -300,25 +323,24 @@ local function parse(str, returnTypes)
                             fields = {}
                         }
 
-                    namedTypes[namespace].fields[name] = {
-                        type = typeof,
-                        description = description,
-                        args = params,
-                        returnTypes = returnTypes
-                    }
-                else
-                    global.fields[namespace].fields[name] = {
-                        type = typeof,
-                        description = description,
-                        args = params,
-                        returnTypes = returnTypes
-                    }
+                    target = namedTypes[namespace].fields
                 end
             else
-                global.fields[name] = {
+                -- Since nodes are callable tables, they kinda break this last case.
+                -- Dirty fix, avoids adding them to the global table.
+                if name ~= "node" then
+                    target = global.fields
+                end
+            end
+
+            if target and name then
+                target[name] = {
                     type = typeof,
                     description = description,
-                    args = params
+                    args = args,
+                    argsDisplay = argsDisplay,
+                    argsDisplayOmitSelf = argsDisplayOmitSelf,
+                    returnTypes = returnTypes
                 }
             end
         end
@@ -344,6 +366,7 @@ local function write_luacompleterc(str)
     f:write(str)
     f:close()
 end
+
 -------------
 
 local exceptions = {
