@@ -11,7 +11,6 @@ Type based completion:
 ![](node.png)
 
 Missing:
-- Parameters for self
 - Swizzle fields
 - mat2, mat3 and mat4 returnType
 - quat returnType
