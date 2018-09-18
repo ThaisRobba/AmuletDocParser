@@ -1,0 +1,6 @@
+[
+    {
+        "files": "**/*.lua",
+        "command": "luafmt ${srcFile} -w replace"
+    }
+]
