@@ -34,7 +34,7 @@ local function get_description(str, i)
     local line = str[i]
     local description
     while line and not line:find("#") do
-        local whitespace = ""
+        local whitespace = " "
 
         if line:find("~~~") then
             line = line:gsub("~~~", "\n```\n")
