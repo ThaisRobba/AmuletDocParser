@@ -1,8 +1,8 @@
 local chars = "[%w_]"
 
 local function get_name(str)
-    local method = str:match("%a%.(".. chars .."+)%(") or str:match("%a:(".. chars .."+)%(")
-    local property = str:match("%a%.(".. chars .. "+) ")
+    local method = str:match("%a%.(" .. chars .. "+)%(") or str:match("%a:(" .. chars .. "+)%(")
+    local property = str:match("%a%.(" .. chars .. "+) ")
     local global_func = str:match(" (.-)%(")
 
     if method then
@@ -15,7 +15,7 @@ local function get_name(str)
 end
 
 local function get_type(str)
-    local method = str:match("%a%.(".. chars .."+)%(") or str:match("%a:(".. chars .."+)%(")
+    local method = str:match("%a%.(" .. chars .. "+)%(") or str:match("%a:(" .. chars .. "+)%(")
     local global_func = str:match(" (.-)%(")
 
     if method or global_func then
@@ -26,11 +26,11 @@ local function get_type(str)
 end
 
 local function get_namespace(str)
-    return str:match(" (".. chars .."+)%.%a") or str:match(" (".. chars .."+):%a")
+    return str:match(" (" .. chars .. "+)%.%a") or str:match(" (" .. chars .. "+):%a")
 end
 
 local function get_description(str, i)
-    i =  i + 2
+    i = i + 2
     local line = str[i]
     local description
     while line and not line:find("#") do
@@ -65,7 +65,7 @@ local function get_params(str)
         local clean_str = params_str:gsub("%[", ""):gsub("%]", ""):gsub("%,", "")
         local params = {}
         for param in clean_str:gmatch("%S+") do
-            table.insert(params, { name = param })
+            table.insert(params, {name = param})
         end
 
         return params
@@ -110,7 +110,7 @@ local global = {
                     type = "ref",
                     name = "vec2"
                 }
-            },
+            }
         },
         vec3 = {
             type = "function",
@@ -130,7 +130,7 @@ local global = {
                     type = "ref",
                     name = "vec3"
                 }
-            },
+            }
         },
         vec4 = {
             type = "function",
@@ -153,7 +153,7 @@ local global = {
                     type = "ref",
                     name = "vec4"
                 }
-            },
+            }
         },
         mat2 = {
             type = "function"
@@ -166,11 +166,9 @@ local global = {
         },
         quat = {
             type = "function"
-        },
+        }
     }
 }
-
-
 
 local namedTypes = {
     vec2 = {
@@ -266,7 +264,7 @@ local namedTypes = {
             },
             q = {
                 type = "number"
-            },
+            }
         }
     }
 }
@@ -274,7 +272,7 @@ local namedTypes = {
 local output = {
     luaVersion = "5.1",
     global = global,
-    packagePath= "./?.lua,./?/init.lua",
+    packagePath = "./?.lua,./?/init.lua",
     namedTypes = namedTypes,
     cwd = "./src"
 }
@@ -295,10 +293,12 @@ local function parse(str, returnTypes)
 
             if namespace then
                 if not global.fields[namespace] then
-                    namedTypes[namespace] = namedTypes[namespace] or {
-                        type = "table",
-                        fields = {}
-                    }
+                    namedTypes[namespace] =
+                        namedTypes[namespace] or
+                        {
+                            type = "table",
+                            fields = {}
+                        }
 
                     namedTypes[namespace].fields[name] = {
                         type = typeof,
@@ -306,7 +306,6 @@ local function parse(str, returnTypes)
                         args = params,
                         returnTypes = returnTypes
                     }
-
                 else
                     global.fields[namespace].fields[name] = {
                         type = typeof,
@@ -349,7 +348,9 @@ end
 
 local exceptions = {
     ["doc/scene_nodes.md"] = {
-            { type = "ref", name = "node"
+        {
+            type = "ref",
+            name = "node"
         }
     }
 }
@@ -363,7 +364,6 @@ end
 
 local completerc_json_str = am.to_json(output)
 write_luacompleterc(completerc_json_str)
-
 
 ---------------
 
@@ -383,7 +383,8 @@ local function parse_for_luacheck(t)
     return formatted
 end
 
-local conf_global = [[
+local conf_global =
+    [[
 files["src/conf.lua"] = {
     globals = {
         "title",
@@ -401,7 +402,8 @@ files["src/conf.lua"] = {
     }
 }]]
 
-local window_global = [[
+local window_global =
+    [[
 globals = {
     window = {
         fields = {
