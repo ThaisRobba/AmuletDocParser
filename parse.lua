@@ -14,6 +14,17 @@ local function get_name(str)
     end
 end
 
+local function get_type(str)
+    local method = str:match("%a%.(".. chars .."+)%(") or str:match("%a:(".. chars .."+)%(")
+    local global_func = str:match(" (.-)%(")
+
+    if method or global_func then
+        return "function"
+    else
+        return "other"
+    end
+end
+
 local function get_namespace(str)
     return str:match(" (".. chars .."+)%.%a") or str:match(" (".. chars .."+):%a")
 end
@@ -280,6 +291,7 @@ local function parse(str, returnTypes)
             local description = get_description(str, i)
 
             local name = get_name(line)
+            local typeof = get_type(line)
 
             if namespace then
                 if not global.fields[namespace] then
@@ -289,7 +301,7 @@ local function parse(str, returnTypes)
                     }
 
                     namedTypes[namespace].fields[name] = {
-                        type = "function",
+                        type = typeof,
                         description = description,
                         args = params,
                         returnTypes = returnTypes
@@ -297,7 +309,7 @@ local function parse(str, returnTypes)
 
                 else
                     global.fields[namespace].fields[name] = {
-                        type = "function",
+                        type = typeof,
                         description = description,
                         args = params,
                         returnTypes = returnTypes
@@ -305,7 +317,7 @@ local function parse(str, returnTypes)
                 end
             else
                 global.fields[name] = {
-                    type = "function",
+                    type = typeof,
                     description = description,
                     args = params
                 }
