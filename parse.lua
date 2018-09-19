@@ -334,6 +334,16 @@ local function parse(str, returnTypes)
             end
 
             if target and name then
+                -- This is hackish, there probably is a better way
+                if name == "window" then
+                    returnTypes = {
+                        {
+                            type = "ref",
+                            name = "window"
+                        }
+                    }
+                end
+
                 target[name] = {
                     type = typeof,
                     description = description,
