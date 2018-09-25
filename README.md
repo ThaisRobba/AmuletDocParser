@@ -10,8 +10,13 @@ Type based completion:
 
 ![](node.png)
 
+Assumptions:
+- User project source is within a `src` folder
+- User has a `window` global which gives access to an am.window instance
+
 Missing:
-- Swizzle fields
+- Swizzle fields (probably only doable in a sane way with a custom provider)
 - mat2, mat3 and mat4 returnType
 - quat returnType
+- quad returnType
 - differentiating between globals and read_only

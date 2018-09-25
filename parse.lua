@@ -93,98 +93,11 @@ local function get_params(str)
 end
 
 --------------------
-
-local global = {
-    type = "table",
-    fields = {
-        am = {
-            type = "table",
-            fields = {}
-        },
-        math = {
-            type = "table",
-            fields = {}
-        },
-        table = {
-            type = "table",
-            fields = {}
-        },
-        vec2 = {
-            type = "function",
-            args = {
-                {
-                    name = "x"
-                },
-                {
-                    name = "y"
-                }
-            },
-            returnTypes = {
-                {
-                    type = "ref",
-                    name = "vec2"
-                }
-            }
-        },
-        vec3 = {
-            type = "function",
-            args = {
-                {
-                    name = "x"
-                },
-                {
-                    name = "y"
-                },
-                {
-                    name = "z"
-                }
-            },
-            returnTypes = {
-                {
-                    type = "ref",
-                    name = "vec3"
-                }
-            }
-        },
-        vec4 = {
-            type = "function",
-            args = {
-                {
-                    name = "x"
-                },
-                {
-                    name = "y"
-                },
-                {
-                    name = "z"
-                },
-                {
-                    name = "w"
-                }
-            },
-            returnTypes = {
-                {
-                    type = "ref",
-                    name = "vec4"
-                }
-            }
-        },
-        mat2 = {
-            type = "function"
-        },
-        mat3 = {
-            type = "function"
-        },
-        mat4 = {
-            type = "function"
-        },
-        quat = {
-            type = "function"
-        }
-    }
-}
-
 local namedTypes = {
+    window = {
+        type = "table",
+        fields = {}
+    },
     vec2 = {
         type = "table",
         fields = {
@@ -279,6 +192,97 @@ local namedTypes = {
             q = {
                 type = "number"
             }
+        }
+    }
+}
+
+local global = {
+    type = "table",
+    fields = {
+        am = {
+            type = "table",
+            fields = {}
+        },
+        math = {
+            type = "table",
+            fields = {}
+        },
+        table = {
+            type = "table",
+            fields = {}
+        },
+        window = namedTypes.window,
+        vec2 = {
+            type = "function",
+            args = {
+                {
+                    name = "x"
+                },
+                {
+                    name = "y"
+                }
+            },
+            returnTypes = {
+                {
+                    type = "ref",
+                    name = "vec2"
+                }
+            }
+        },
+        vec3 = {
+            type = "function",
+            args = {
+                {
+                    name = "x"
+                },
+                {
+                    name = "y"
+                },
+                {
+                    name = "z"
+                }
+            },
+            returnTypes = {
+                {
+                    type = "ref",
+                    name = "vec3"
+                }
+            }
+        },
+        vec4 = {
+            type = "function",
+            args = {
+                {
+                    name = "x"
+                },
+                {
+                    name = "y"
+                },
+                {
+                    name = "z"
+                },
+                {
+                    name = "w"
+                }
+            },
+            returnTypes = {
+                {
+                    type = "ref",
+                    name = "vec4"
+                }
+            }
+        },
+        mat2 = {
+            type = "function"
+        },
+        mat3 = {
+            type = "function"
+        },
+        mat4 = {
+            type = "function"
+        },
+        quat = {
+            type = "function"
         }
     }
 }
@@ -395,6 +399,13 @@ for _, file in pairs(files) do
     parse(lines, exceptions[file])
 end
 
+namedTypes.window.fields.scene = {
+    typeof = "ref",
+    name = "node"
+}
+
+global.fields.window.fields.scene = namedTypes.node
+
 local completerc_json_str = am.to_json(output)
 write_luacompleterc(completerc_json_str)
 
@@ -456,6 +467,39 @@ globals = {
             "show_cursor",
             "scene",
             "projection",
+            "close",
+            "resized",
+            "key_down",
+            "keys_down",
+            "key_pressed",
+            "keys_pressed",
+            "key_released",
+            "keys_released",
+            "mouse_position",
+            "mouse_norm_position",
+            "mouse_pixel_position",
+            "mouse_delta",
+            "mouse_norm_delta",
+            "mouse_pixel_delta",
+            "mouse_down",
+            "mouse_pressed",
+            "mouse_released",
+            "mouse_wheel",
+            "mouse_wheel_delta",
+            "touches_began",
+            "touches_ended",
+            "active_touches",
+            "touch_began",
+            "touch_ended",
+            "touch_active",
+            "touch_position",
+            "touch_norm_position",
+            "touch_pixel_position",
+            "touch_delta",
+            "touch_norm_delta",
+            "touch_pixel_delta",
+            "touch_force",
+            "touch_force_available",
         }
     }
 }
@@ -464,7 +508,7 @@ globals = {
 local function write_luacheckrc()
     local f = io.open(".luacheckrc", "w")
     f:write("std = 'lua51'\n")
-    f:write("self = true\n")
+    f:write("self = false\n")
     f:write(window_global .. "\n")
     f:write("read_globals = " .. table.tostring(parse_for_luacheck(global)) .. "\n")
     f:write(conf_global)
